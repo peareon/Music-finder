@@ -9,7 +9,8 @@ app.use(cors({credentials: true, origin:'http://localhost:3000'}));
 
 
 app.post("/getToken", async function(req, res){
-    console.log(req.body)
+    console.log(req.body, "artistaa")
+    console.log("ta")
     const {artist, minValue, maxValue} = req.body
     token = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -26,6 +27,8 @@ app.post("/getToken", async function(req, res){
     });
     const {artists: {items}} = await artistResponse.json();
     const {id} = items[0];
+    console.log(id)
+    console.log(access_token)
     if (id == ""){
         res.json(["1"]);
     }
@@ -39,6 +42,7 @@ app.post("/getToken", async function(req, res){
         const {tracks} = await tracksResponse.json();
         const no_of_tracks = tracks.length;
         console.log("no of tracks",no_of_tracks)
+        console.log("ta")
         let tracksList = [];
         let rnd_list = [];
         for(let i = 0; i < 6; i++){

@@ -13,42 +13,49 @@ export async function APICall(artist: String, minValue: Number, maxValue: Number
         "Authorization": `Bearer ${access_token}`
     }
     });
-    console.log(artistResponse)
     const {artists: {items}} = await artistResponse.json();
     const {id} = items[0];
     if (id == ""){
-    return(["No artist found"]);
+    return(["No artist or genres found"]);
     }
     else{
         const limit = Math.floor(Math.random() * 26) + 10;
-        const tracksResponse = await fetch(`https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${id}&min_popularity=${minValue}&max_popularity=${maxValue}`,{
+        
+        const getSeeds = await fetch(`https://api.spotify.com/v1/artists/${id}/top-tracks`, {
             headers: {
                 "Authorization": `Bearer ${access_token}`
             }
-        });
-        const {tracks} = await tracksResponse.json();
-        const no_of_tracks = tracks.length;
-        let tracksList = [];
-        let rnd_list:any = [];
-        if(no_of_tracks === 0){
-            return(["No tracks found"]);
-        }
-        if(no_of_tracks > 6){
+        })
+
+        const toptracksResponse = await getSeeds.json();
+        const topTracks = toptracksResponse.tracks;
+        console.log(topTracks)
+        if(topTracks.length > 5){
+            let songsArray: string[] = [];
+            let numberArray: string[] = [];
             for(let i = 0; i < 6; i++){
-                let random_take = Math.floor(Math.random() * no_of_tracks);
-                while(rnd_list.includes(random_take)){
-                    random_take = Math.floor(Math.random() * no_of_tracks);
+                let random_take = Math.floor(Math.random() * topTracks.length).toString();
+                console.log(random_take)
+                while(numberArray.includes(random_take)){
+                    random_take = Math.floor(Math.random() * topTracks.length).toString();
                 }
-                rnd_list.push(random_take);
-                tracksList.push(tracks[random_take]);
+                numberArray.push(random_take);
+                songsArray.push(topTracks[random_take]);
             }
-            return(JSON.stringify(tracksList));    
+            console.log(songsArray)
+            return(JSON.stringify(songsArray));    
+        }
+        else if(topTracks.length > 0 && topTracks.length <= 5){
+            let songsArray: string[] = [];
+            for(let song in topTracks){
+                songsArray.push(song);
+            }
+            console.log(songsArray)
+            return(JSON.stringify(songsArray));  
+            
         }
         else{
-            for(let i = 0; i < no_of_tracks; i++){
-                tracksList.push(tracks[i]);
-            }
-            return(JSON.stringify(tracksList));  
+            return(["No tracks found"]);
         }
          
     }
